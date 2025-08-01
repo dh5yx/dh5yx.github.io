@@ -1,11 +1,163 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+	<meta charset="utf-8">
+	<title>读写卡器程序测试</title>
+	<script>
+		//读卡操作
+		function readIcCard() {
+			try {
+				//alert('测试');
+			let iport = '100';//读卡器端口，读卡器端口，USB1--100,COM1--0,COM2--1，一般默认为100，打开页面时从后台获取
+			let iBaud = '9600';//波特率，一般默认为9600，打开页面时从后台获取
+			let inpara = iport + '|' + iBaud;
+			//创建 XMLHttpRequest 对象
+			let xhr = new XMLHttpRequest();
+			// let url = 'http://localhost:18080/readIcCard';
+			let url = 'http://localhost:9999/users';
+			xhr.open('post', url, true);
+
+			// xhr.setRequestHeader('Content-Type', 'application/text');
+			// xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+			// xhr.setRequestHeader('auth', '123');
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState === 4 && xhr.status === 200 && xhr.responseText != '9999') {
+					console.log(xhr.responseText);
+					//读卡返回信息，可以用该数据验证测试功能
+					//var rcardstr=0|68010027028300000000990101000002000050000000000000000100000100025036680900201007828802D816|0000271000000009|680100FC0000522400005224000052240000522400005224000052240000522400005224000052240000522400005224000052240000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008516|680100FC00005224000052240000522400005224000052240000522400005224000052240000522400005224000052240000522400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+					var rcardstr = xhr.responseText;
+					var rcararr = rcardstr.split('|');
+					var rkcode = rcararr[0];
+					var file1 = rcararr[1];//读卡成功后发送后台，参数信息文件
+					var file2 = rcararr[2];//读卡成功后发送后台，钱包文件
+					var file3 = rcararr[3];//读卡成功后发送后台，第一套电价文件
+					var file4 = rcararr[4];//读卡成功后发送后台，第二套电价文件
+					var file5 = rcararr[5];//读卡成功后发送后台，电表返写信息文件
+					console.log(file1);
+					console.log(file2);
+					console.log(file3);
+					console.log(file4);
+					console.log(file5);
+					/*调用后端服务，将5个文件（字符串）发送给后台解析，并返回用户信息、写卡信息和购电记录*/
+
+				}
+			};
+			//为准备发送做准备将要发送的数据作为参数传递给 send() 方法。
+			//处理响应当 xhr.readyState === 4 并且 xhr.status === 200 时，请求已成功。使用 xhr.responseText 获取响应数据。
+			xhr.send(inpara);
+			} catch (error) {
+				console.log(error);
+				
+			}
+		}
+		
+		//加密机设置函数，设置密码机 IP 地址和端口号
+		function setIp() {
+			//alert('测试');
+			let ip = '192.166.1.15';//加密机ip，打开页面时从后台获取
+			let port = '9000';//加密机端口，打开页面时从后台获取
+			let keytime = '3000';//加密机超时时间，打开页面时从后台获取
+			//创建 XMLHttpRequest 对象
+			const xhr = new XMLHttpRequest();
+			let url = 'http://localhost:18080/setIp';
+			xhr.open('POST', url, true);
+			//xhr.setRequestHeader('Content-Type', 'application/text');
+			xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+			//处理响应当 xhr.readyState === 4 并且 xhr.status === 200 时，请求已成功。使用 xhr.responseText 获取响应数据。
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState === 4 && xhr.status === 200 && xhr.responseText != '9999') {
+					return xhr.responseText;
+				}
+			};
+			//为准备发送做准备将要发送的数据作为参数传递给 send() 方法。
+			xhr.send(inpara);
+		}
+		//写卡操作：先调用加密机设置函数，设置密码机 IP 地址和端口号，返回成功后再进行写卡操作
+		function writeUserCard() {
+
+			//alert('测试');
+			let ip = '192.166.1.15';//加密机ip，打开页面时从后台获取，
+			let port = '9000';//加密机端口，打开页面时从后台获取，
+			let keytime = '3000';//加密机超时时间，打开页面时从后台获取，
+			let inpara = ip + '|' + port + '|' + keytime;
+			//创建 XMLHttpRequest 对象
+			let xhr = new XMLHttpRequest();
+			let url = 'http://localhost:18080/setIp';
+			xhr.open('POST', url, true);
+			//xhr.setRequestHeader('Content-Type', 'application/text');
+			xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+			//处理响应当 xhr.readyState === 4 并且 xhr.status === 200 时，请求已成功。使用 xhr.responseText 获取响应数据。
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState === 4 && xhr.status === 200) {
+					if (xhr.responseText === "0") {
+						let itype = '0';//加密方式，一般默认为0，打开页面时从后台获取
+						let iport1 = '100';//读卡器端口，读卡器端口，USB1--100,COM1--0,COM2--1，一般默认为100，打开页面时从后台获取
+						let iBaud1 = '9600';//波特率，一般默认为9600，打开页面时从后台获取
+						//参数信息文件,测试数据，实际应该收费成功后从后台返回
+						file1DataString = '68010027028300000000990101000002000050000000000000000100000100025036680900201007828802d816';
+						//钱包文件,测试数据，实际应该收费成功后从后台返回
+						file2DataString = '0000271000000009';
+						//第一套电价文件,测试数据，实际应该收费成功后从后台返回
+						file3DataString = '680100FC0000522400005224000052240000522400005224000052240000522400005224000052240000522400005224000052240000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008516';
+						//第二套电价文件,测试数据，实际应该收费成功后从后台返回
+						file4DataString = '680100FC0000522400005224000052240000522400005224000052240000522400005224000052240000522400005224000052240000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008516';
+						let inpara1 = itype + '|' + iport1 + '|' + iBaud1 + '|' + file1DataString + '|' + file2DataString + '|' + file3DataString + '|' + file4DataString;
+						//创建 XMLHttpRequest 对象
+						let xhr1 = new XMLHttpRequest();
+						let url1 = 'http://localhost:18080/writeUserCard';
+						xhr1.open('POST', url1, true);
+						//xhr.setRequestHeader('Content-Type', 'application/text');
+						xhr1.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+						//处理响应当 xhr.readyState === 4 并且 xhr.status === 200 时，请求已成功。使用 xhr.responseText 获取响应数据。
+						xhr1.onreadystatechange = function () {
+							if (xhr1.readyState === 4 && xhr1.status === 200 && xhr.responseText != '9999') {
+								if (xhr1.responseText === "0") {
+									//写卡成功后，再次读卡刷新页面数据
+									readIcCard();
+									alert("写卡成功");
+								} else {
+									var errstr = errinf(xhr1.responseText);
+									alert("读取IC卡失败，错误代码" + xhr1.responseText + "\n" + errstr);
+								}
+							}
+						}
+						//为准备发送做准备将要发送的数据作为参数传递给 send() 方法。
+						xhr1.send(inpara1);
+					}
+					else {
+						alert("连接加密机失败");
+					}
+				}
+			};
+			//为准备发送做准备将要发送的数据作为参数传递给 send() 方法。
+			xhr.send(inpara);
+			//alert('测试');
+
+
+
+		}
+		function errinf(errcode) {
+			var errstr = "";
+			errstr += "请按以下步骤检查，每个步骤之后都要重新读卡确认问题是否解决\n\n"
+			errstr += "1．确认卡是否插好 \n\n"
+			errstr += "2．退出系统，重新登录\n\n"
+			errstr += "3. 读取其他电卡测试能否读卡，如能成功读卡（只要未继续提示显示错误代码则为成功读卡）可以选择给用户补写新卡，如不能读取则继续以下步骤\n\n"
+			errstr += "4．重新插拔读卡器\n\n"
+			errstr += "5. 重启电脑\n\n"
+			errstr += "6. 联系系统维护人\n";
+			return errstr;
+		}
+	</script>
 </head>
+
 <body>
-    123
+
+	<h1>读写卡测试程序</h1>
+	<button type="button" onclick="kyset()">设置跨域</button>
+	<button type="button" onclick="readIcCard()">读取IC卡信息</button>
+	<button type="button" onclick="writeUserCard()">购电写卡</button>
+
 </body>
+
 </html>
